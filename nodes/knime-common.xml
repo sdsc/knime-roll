@@ -16,6 +16,10 @@
 	</changelog>
 
 	<package>knime</package>
+	<package>knime_1</package>
+	<package>knime_2</package>
+	<package>knime_3</package>
+	<package>knime_4</package>
 	<package>knime-modules</package>
 	<package>knime-roll-test</package>
 	<package>roll-knime-usersguide</package>

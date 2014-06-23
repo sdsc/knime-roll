@@ -17,7 +17,7 @@
 	</changelog>
 
 	<!-- add edges here -->
-	<edge from="commone">
+	<edge from="base">
 		<to>knime-common</to>
 	</edge>
 
