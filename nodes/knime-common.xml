@@ -12,6 +12,9 @@ All rights reserved. Rocks(r) v6.1.1 www.rocksclusters.org
 </copyright>
 
 <package>sdsc-knime</package>
+<package>sdsc-knime2</package>
+<package>sdsc-knime3</package>
+<package>sdsc-knime4/package>
 <package>sdsc-knime-modules</package>
 <package>sdsc-knime-roll-test</package>
 
