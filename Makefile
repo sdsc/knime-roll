@@ -62,7 +62,9 @@ include Rolls.mk
 
 default: roll
 
+clean::
+	rm -f _arch bootstrap.py
+
 distclean:: clean
-	-rm -f _arch build.log
-	-rm -rf RPMS SRPMS
-	-rm -rf src/build-*
+	rm -fr RPMS SRPMS
+	-rm -f build.log

@@ -1,0 +1,4 @@
+#%Module1.0
+module-whatis "knime"
+module-whatis "Version: VERSION"
+prepend-path PATH /opt/knime

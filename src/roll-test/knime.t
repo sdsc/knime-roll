@@ -20,11 +20,13 @@ if($appliance =~ /$installedOnAppliancesPattern/) {
 }
 SKIP: {
 
-  skip 'knime not installed', 4 if ! $isInstalled;
+  skip 'knime not installed', 5 if ! $isInstalled;
 
-   `/bin/ls /opt/knime/knime 2>&1`;
+  `/bin/ls /opt/knime/knime 2>&1`;
   ok($? == 0, 'knime script installed');
-
+  SKIP: {
+    skip 'No knime exec test written', 1;
+  }
 
   skip 'modules not installed', 3 if ! -f '/etc/profile.d/modules.sh';
   `/bin/ls /opt/modulefiles/applications/knime/[0-9]* 2>&1`;
@@ -33,4 +35,5 @@ SKIP: {
   ok($? == 0, 'knime version module installed');
   ok(-l '/opt/modulefiles/applications/knime/.version',
      'knime version module link created');
+
 }

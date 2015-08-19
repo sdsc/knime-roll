@@ -21,29 +21,23 @@ Rocks development machine.
 
 ## Dependencies
 
-None
+The sdsc-roll must be installed on the build machine, since the build process
+depends on make include files provided by that roll.
 
 
 ## Building
 
-To build the knime roll, execute these instructions on a Rocks development
+To build the knime roll, execute this on a Rocks development
 machine (e.g., a frontend or development appliance):
 
 ```shell
-% make default 2>&1 | tee build.log
-% grep "RPM build error" build.log
+% make 2>&1 | tee build.log
 ```
 
-If nothing is returned from the grep command then the roll should have been
-created as... `knime-*.iso`. If you built the roll on a Rocks frontend then
-proceed to the installation step. If you built the roll on a Rocks development
-appliance you need to copy the roll to your Rocks frontend before continuing
-with installation.
-
-make 
-```
-produces a roll with a name that begins "`knime`"; it
-contains and installs similarly-named rpms.
+A successful build will create the file `cmake-*.disk1.iso`.  If you built the
+roll on a Rocks frontend, proceed to the installation step. If you built the
+roll on a Rocks development appliance, you need to copy the roll to your Rocks
+frontend before continuing with installation.
 
 
 ## Installation
@@ -69,15 +63,9 @@ module files in:
 ## Testing
 
 The knime-roll includes a test script which can be run to verify proper
-installation of the knime-roll documentation, binaries and module files. To
-run the test scripts execute the following command(s):
+installation of the roll documentation, binaries and module files. To run
+the test scripts execute the following command(s):
 
 ```shell
 % /root/rolltests/knime.t 
-ok 1 - knime is installed
-ok 2 - knime test run
-ok 3 - knime module installed
-ok 4 - knime version module installed
-ok 5 - knime version module link created
-1..5
 ```
