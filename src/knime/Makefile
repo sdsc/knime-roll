@@ -64,7 +64,12 @@ include Rules.mk
 include $(SDSCDEVEL)/Pull.mk
 include $(SDSCDEVEL)/Rules.mk
 
-# NOTE: we split the package into multiple rpms because of rpm size limits
+# NOTE: we split the package into multiple rpms because of rpm size limits. The
+# "make rpm" invocation of this Makefile creates the sdsc-knem rpm and uses
+# recursive calls to create -knem2, -knem3, .. -knem$(RPM_COUNT).  knem files
+# are packaged round-robin from a sorted listing of the source package
+# contents--the first in sdsc-knem, second in -knem2, third in -knem3, etc.
+
 RPM_COUNT = 4
 RPM_TO_BUILD = 1
 
@@ -86,7 +91,7 @@ install::
 	mkdir -p -m 755 $(ROOT)/$(PKGROOT)
 	( \
 	  cd $(SOURCE_DIR); \
-	  find . -type f | perl -e 'for(my $$i=0;<>;$$i++){`/bin/cp --parents "$$_" $(ROOT)/$(PKGROOT)/` if $$i%$(RPM_COUNT)+1 == $(RPM_TO_BUILD);}'; \
+	  find . -type f | sort | perl -e 'for(my $$i=0;<>;$$i++){chomp and `/bin/cp --parents "$$_" $(ROOT)/$(PKGROOT)/` if $$i%$(RPM_COUNT)+1 == $(RPM_TO_BUILD);}'; \
 	)
 	if test "$(RPM_TO_BUILD)" = "1"; then \
 	  for rpm in `seq 2 $(RPM_COUNT)`; do \
