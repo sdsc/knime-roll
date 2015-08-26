@@ -58,65 +58,48 @@
 #
 
 REDHAT.ROOT = $(CURDIR)/../../
-PACKAGES=4
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
-include pull.mk
+include $(SDSCDEVEL)/Pull.mk
+include $(SDSCDEVEL)/Rules.mk
+
+# NOTE: we split the package into multiple rpms because of rpm size limits. The
+# "make rpm" invocation of this Makefile creates the sdsc-knem rpm and uses
+# recursive calls to create -knem2, -knem3, .. -knem$(RPM_COUNT).  knem files
+# are packaged round-robin from a sorted listing of the source package
+# contents--the first in sdsc-knem, second in -knem2, third in -knem3, etc.
+
+RPM_COUNT = 4
+RPM_TO_BUILD = 1
+
+$(NAME).spec: DESCRIPTION LICENSE
+
+DESCRIPTION:
+	( \
+	  $(DESCRIBE_PKG); \
+	) > $@
+
+LICENSE: $(SRC_DIRS)
+	$(CHECK_LICENSE_FILES)
+	echo EPL and GPL > $@
 
 build: $(SRC_DIRS)
 	@echo "::: Package $(NAME) build complete :::"
 	
 install::
-	mkdir -p $(ROOT)/$(PKGROOT)
-	mkdir -p $(REDHAT.ROOT)/src/build-$(NAME)-modules
-	mkdir -p $(REDHAT.ROOT)/src/build-$(NAME)
+	mkdir -p -m 755 $(ROOT)/$(PKGROOT)
 	( \
-           packageCount=1; \
-           mv $(SOURCE_DIR)/* $(REDHAT.ROOT)/src/build-$(NAME); \
-           mkdir -p $(REDHAT.ROOT)/src/build-$(NAME)_$${packageCount}; \
-           cd  $(REDHAT.ROOT)/src/build-$(NAME); \
-           find . ! -type d -exec ls -l {} \; >$(REDHAT.ROOT)/src/$$$$.tmp; \
-           find . \( -name .\* -a ! -type d \) -exec ls -l {} \; >>$(REDHAT.ROOT)/src/$$$$.tmp; \
-           sum=0; \
-           total=`du -b -s|awk '{print $$1}'`; \
-           maxPackageSize=$$(( $$total / $(PACKAGES) )); \
-           echo "MAX SIZE=$$maxPackageSize"; \
-           exec <$(REDHAT.ROOT)/src/$$$$.tmp; \
-           cat /dev/null > $(REDHAT.ROOT)/src/.files; \
-           while read line; do \
-               fileSize=`echo $$line |awk '{print $$5}'`; \
-               fileName=`echo $$line |awk '{print $$9}'`; \
-               sum=$$(( $$sum + $$fileSize )); \
-               if test $$sum -ge $$maxPackageSize; then \
-                  sum=$$(( $$sum - $$fileSize )); \
-                  echo "NEW PACKAGE: OLD SUM $$sum"; \
-                  tar cvf $(REDHAT.ROOT)/src/package.tar `cat $(REDHAT.ROOT)/src/.files`; \
-                  cd $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount; \
-                  tar xvf $(REDHAT.ROOT)/src/package.tar; \
-                  cd $(REDHAT.ROOT)/src/build-$(NAME); \
-                  sum=$$fileSize; \
-                  packageCount=$$(( $$packageCount + 1 )); \
-                  mkdir  -p $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount; \
-                  cat /dev/null > $(REDHAT.ROOT)/src/.files; \
-               fi; \
-               echo $$fileName >> $(REDHAT.ROOT)/src/.files; \
-           done; \
-           tar cvf $(REDHAT.ROOT)/src/package.tar `cat $(REDHAT.ROOT)/src/.files`; \
-           cd $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount; \
-           tar xvf $(REDHAT.ROOT)/src/package.tar; \
-           cd $(REDHAT.ROOT)/src/build-$(NAME); \
-           mkdir -p $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount/appdata/products; \
-           mkdir -p $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount/appdata/components; \
-           cp -r -d appdata/products/* $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount/appdata/products; \
-           cp -r -d appdata/components/* $(REDHAT.ROOT)/src/build-$(NAME)_$$packageCount/appdata/components; \
-           rm -f $(REDHAT.ROOT)/src/$$$$.tmp; \
-           rm -f $(REDHAT.ROOT)/src/.files; \
-           rm -f $(REDHAT.ROOT)/src/package.tar \
-        )
-	cat $(NAME).module | perl -pi -e "s!MODULEROOT!/opt/modulefiles/applications/$(NAME)!g;s!VERSION!$(VERSION)!g" \
-          > $(REDHAT.ROOT)/src/build-$(NAME)-modules/$(NAME).module
+	  cd $(SOURCE_DIR); \
+	  find . -type f | sort | perl -e 'for(my $$i=0;<>;$$i++){chomp and `/bin/cp --parents "$$_" $(ROOT)/$(PKGROOT)/` if $$i%$(RPM_COUNT)+1 == $(RPM_TO_BUILD);}'; \
+	)
+	if test "$(RPM_TO_BUILD)" = "1"; then \
+	  for rpm in `seq 2 $(RPM_COUNT)`; do \
+	    $(MAKE) NAME=$(NAME)$$rpm RPM_TO_BUILD=$$rpm rpm; \
+	  done; \
+	  $(INSTALL_LICENSE_FILES); \
+	fi
 	@echo "::: Package $(NAME) install complete :::"
 
 clean::
-	rm -rf $(SOURCE_DIR)
+	rm -rf $(SOURCE_DIR) DESCRIPTION LICENSE
