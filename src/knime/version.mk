@@ -1,6 +1,6 @@
 NAME           = sdsc-knime
 VERSION        = 2.9.2
-RELEASE        = 1
+RELEASE        = 2
 PKGROOT        = /opt/knime
 
 SRC_SUBDIR     = knime
@@ -13,4 +13,5 @@ SOURCE_DIR     = $(SOURCE_NAME)_$(SOURCE_VERSION:%.$(SOURCE_SUFFIX)=%)
 
 TAR_GZ_PKGS    = $(SOURCE_PKG)
 
-RPM.EXTRAS     = AutoReq:No
+RPM.EXTRAS     = AutoReq:No\nAutoProv:No
+RPM.PREFIX     = $(PKGROOT)
