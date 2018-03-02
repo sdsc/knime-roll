@@ -49,8 +49,19 @@ To install, execute these instructions on a Rocks frontend:
 % rocks enable roll knime
 % cd /export/rocks/install
 % rocks create distro
-% rocks run roll knime | bash
 ```
+
+Subsequent installs of compute and login nodes will then include the contents
+of the knime-roll.  To avoid cluttering the cluster frontend with unused
+software, the knime-roll is configured to install only on compute and
+login nodes. To force installation on your frontend, run this command after
+adding the knime-roll to your distro
+
+```shell
+% rocks run roll knime host=NAME | bash
+```
+
+where NAME is the DNS name of a compute or login node in your cluster.
 
 In addition to the software itself, the roll installs knime environment
 module files in:
